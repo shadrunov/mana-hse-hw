@@ -13,7 +13,7 @@ library(tidyverse)
 ### загрузка данных
 Выбрали датасет, загрузили csv в tibble:
 ```{r cars}
-data <- read.csv("countries.csv")
+data <- read.csv("countries.csv")  # reading csv
 data %>% head(10)
 ```
 будем исследовать колонки:  
@@ -25,7 +25,7 @@ data %>% head(10)
 * "Deathrate"  
 
 ```{r}
-data_f <- data %>%
+data_f <- data %>%  # selecting set of columns
     select(
         "Country",
         "Area",
@@ -39,8 +39,8 @@ data_f <- data %>%
 очистим датасет от NA-значений, пустых значений и сохраним в формат RDS:
 ```{r}
 data_clean <- data_f %>%
-    drop_na() %>%
-    filter(
+    drop_na() %>%  # cleaning NA rows
+    filter(  # cleaning rows with empty values
         Birthrate != "",
         Deathrate != ""
     )
@@ -55,12 +55,12 @@ summary(data_clean)
 ### вычисление переменных
 вычислим переменную "естественный прирост" -- Rate of natural increase (`Increase`):
 ```{r}
-data_mut <- mutate(data_clean, Increase = Birthrate - Deathrate)
+data_mut <- mutate(data_clean, Increase = Birthrate - Deathrate)  # adding new column
 data_mut %>% head(10)
 ```
 также вычислим переменную "GDP per Area" -- сколько ВВП приходится на квадратную милю (`GDPpmi`):
 ```{r}
-data_mut <- mutate(data_mut, GDPpmi = GDP / Area)
+data_mut <- mutate(data_mut, GDPpmi = GDP / Area)  # adding another column
 data_mut %>% head(10)
 ```
 
@@ -71,6 +71,7 @@ data_mut %>% summary()
 ### деление на группы и вычисление мер центральной тенденции
 разобьём датасет по тому, наблюдается ли в стране убыль или прирост населения.
 ```{r}
+# splitting dataset into two chunks
 data_increase <- data_mut %>% filter(Increase > 0)
 data_increase %>% head(10)
 data_decrease <- data_mut %>% filter(Increase <= 0)
@@ -78,6 +79,7 @@ data_decrease %>% head(10)
 ```
 в каждой группе посчитаем медиану и среднее, SD:
 ```{r}
+# calculating central tendency measures
 data_increase$GDPpmi %>% mean()
 data_increase$GDPpmi %>% median()
 data_increase$GDPpmi %>% sd()

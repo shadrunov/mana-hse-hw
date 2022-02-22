@@ -174,8 +174,8 @@ pre code {
 <div id="загрузка-данных" class="section level3">
 <h3>загрузка данных</h3>
 <p>Выбрали датасет, загрузили csv в tibble:</p>
-<pre class="r"><code>data &lt;- read.csv(&quot;countries.csv&quot;)
-data %&gt;% head(10) </code></pre>
+<pre class="r"><code>data &lt;- read.csv(&quot;countries.csv&quot;)  # reading csv
+data %&gt;% head(10)</code></pre>
 <pre><code>##               Country                              Region Population    Area
 ## 1        Afghanistan        ASIA (EX. NEAR EAST)            31056997  647500
 ## 2            Albania  EASTERN EUROPE                         3581655   28748
@@ -217,20 +217,24 @@ data %&gt;% head(10) </code></pre>
 <li>“Birthrate”,</li>
 <li>“Deathrate”</li>
 </ul>
-<pre class="r"><code>data_f &lt;- data %&gt;%
-    select(&quot;Country&quot;,
-           &quot;Area&quot;,
-           &quot;GDP&quot;,
-           &quot;Birthrate&quot;,
-           &quot;Deathrate&quot;)</code></pre>
+<pre class="r"><code>data_f &lt;- data %&gt;%  # selecting set of columns
+    select(
+        &quot;Country&quot;,
+        &quot;Area&quot;,
+        &quot;GDP&quot;,
+        &quot;Birthrate&quot;,
+        &quot;Deathrate&quot;
+    )</code></pre>
 </div>
 <div id="очистка-данных" class="section level3">
 <h3>очистка данных</h3>
 <p>очистим датасет от NA-значений, пустых значений и сохраним в формат RDS:</p>
-<pre class="r"><code>data_clean &lt;- data_f %&gt;% 
-    drop_na() %&gt;% 
-    filter(Birthrate != &quot;&quot;, 
-           Deathrate != &quot;&quot;)
+<pre class="r"><code>data_clean &lt;- data_f %&gt;%
+    drop_na() %&gt;%  # cleaning NA rows
+    filter(  # cleaning rows with empty values
+        Birthrate != &quot;&quot;,
+        Deathrate != &quot;&quot;
+    )
 data_clean %&gt;% saveRDS(&quot;clean.RDS&quot;)</code></pre>
 <p>проверим типы данных в колонках:</p>
 <pre class="r"><code>summary(data_clean)</code></pre>
@@ -253,7 +257,7 @@ data_clean %&gt;% saveRDS(&quot;clean.RDS&quot;)</code></pre>
 <div id="вычисление-переменных" class="section level3">
 <h3>вычисление переменных</h3>
 <p>вычислим переменную “естественный прирост” – Rate of natural increase (<code>Increase</code>):</p>
-<pre class="r"><code>data_mut &lt;- mutate(data_clean, Increase = Birthrate - Deathrate)
+<pre class="r"><code>data_mut &lt;- mutate(data_clean, Increase = Birthrate - Deathrate)  # adding new column
 data_mut %&gt;% head(10)</code></pre>
 <pre><code>##               Country    Area   GDP Birthrate Deathrate Increase
 ## 1        Afghanistan   647500   700     46.60     20.34    26.26
@@ -267,7 +271,7 @@ data_mut %&gt;% head(10)</code></pre>
 ## 9          Argentina  2766890 11200     16.73      7.55     9.18
 ## 10           Armenia    29800  3500     12.07      8.23     3.84</code></pre>
 <p>также вычислим переменную “GDP per Area” – сколько ВВП приходится на квадратную милю (<code>GDPpmi</code>):</p>
-<pre class="r"><code>data_mut &lt;- mutate(data_mut, GDPpmi = GDP / Area)
+<pre class="r"><code>data_mut &lt;- mutate(data_mut, GDPpmi = GDP / Area)  # adding another column
 data_mut %&gt;% head(10)</code></pre>
 <pre><code>##               Country    Area   GDP Birthrate Deathrate Increase       GDPpmi
 ## 1        Afghanistan   647500   700     46.60     20.34    26.26  0.001081081
@@ -299,8 +303,9 @@ data_mut %&gt;% head(10)</code></pre>
 <div id="деление-на-группы-и-вычисление-мер-центральной-тенденции" class="section level3">
 <h3>деление на группы и вычисление мер центральной тенденции</h3>
 <p>разобьём датасет по тому, наблюдается ли в стране убыль или прирост населения.</p>
-<pre class="r"><code>data_increase &lt;- data_mut %&gt;% filter(Increase &gt; 0) 
-data_increase %&gt;% head(10)  </code></pre>
+<pre class="r"><code># splitting dataset into two chunks
+data_increase &lt;- data_mut %&gt;% filter(Increase &gt; 0)
+data_increase %&gt;% head(10)</code></pre>
 <pre><code>##               Country    Area   GDP Birthrate Deathrate Increase       GDPpmi
 ## 1        Afghanistan   647500   700     46.60     20.34    26.26  0.001081081
 ## 2            Albania    28748  4500     15.11      5.22     9.89  0.156532628
@@ -312,7 +317,7 @@ data_increase %&gt;% head(10)  </code></pre>
 ## 8  Antigua &amp; Barbuda      443 11000     16.93      5.37    11.56 24.830699774
 ## 9          Argentina  2766890 11200     16.73      7.55     9.18  0.004047866
 ## 10           Armenia    29800  3500     12.07      8.23     3.84  0.117449664</code></pre>
-<pre class="r"><code>data_decrease &lt;- data_mut %&gt;% filter(Increase &lt;= 0) 
+<pre class="r"><code>data_decrease &lt;- data_mut %&gt;% filter(Increase &lt;= 0)
 data_decrease %&gt;% head(10)</code></pre>
 <pre><code>##            Country   Area   GDP Birthrate Deathrate Increase       GDPpmi
 ## 1         Austria   83870 30000      8.74      9.76    -1.02   0.35769643
@@ -326,7 +331,8 @@ data_decrease %&gt;% head(10)</code></pre>
 ## 9          Greece  131940 20000      9.68     10.24    -0.56   0.15158405
 ## 10       Guernsey      78 20000      8.81     10.01    -1.20 256.41025641</code></pre>
 <p>в каждой группе посчитаем медиану и среднее, SD:</p>
-<pre class="r"><code>data_increase$GDPpmi %&gt;% mean()</code></pre>
+<pre class="r"><code># calculating central tendency measures
+data_increase$GDPpmi %&gt;% mean()</code></pre>
 <pre><code>## [1] 31.56508</code></pre>
 <pre class="r"><code>data_increase$GDPpmi %&gt;% median()</code></pre>
 <pre><code>## [1] 0.0570897</code></pre>
