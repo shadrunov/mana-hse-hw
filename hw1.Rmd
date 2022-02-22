@@ -1,6 +1,6 @@
 ---
 title: "hw1"
-author: "Aleksey Shadrunov, M. Emelyanenko, A. Podolskaya"
+author: "Aleksey Shadrunov, Maxim Emelyanenko, Anastasia Podolskaya"
 date: "2/21/2022"
 output: html_document
 ---
@@ -10,11 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-## hw1
+### загрузка данных
 Выбрали датасет, загрузили csv в tibble:
 ```{r cars}
 data <- read.csv("countries.csv")
-data %>% head(10) 
+data %>% head(10)
 ```
 будем исследовать колонки:  
 
@@ -26,19 +26,24 @@ data %>% head(10)
 
 ```{r}
 data_f <- data %>%
-    select("Country",
-           "Area",
-           "GDP",
-           "Birthrate",
-           "Deathrate")
+    select(
+        "Country",
+        "Area",
+        "GDP",
+        "Birthrate",
+        "Deathrate"
+    )
 ```
 
+### очистка данных
 очистим датасет от NA-значений, пустых значений и сохраним в формат RDS:
 ```{r}
-data_clean <- data_f %>% 
-    drop_na() %>% 
-    filter(Birthrate != "", 
-           Deathrate != "")
+data_clean <- data_f %>%
+    drop_na() %>%
+    filter(
+        Birthrate != "",
+        Deathrate != ""
+    )
 data_clean %>% saveRDS("clean.RDS")
 ```
 проверим типы данных в колонках:
@@ -47,6 +52,7 @@ summary(data_clean)
 ```
 видим, что в столбце Country хранятся символы, в остальных -- числа. 
 
+### вычисление переменных
 вычислим переменную "естественный прирост" -- Rate of natural increase (`Increase`):
 ```{r}
 data_mut <- mutate(data_clean, Increase = Birthrate - Deathrate)
@@ -62,11 +68,12 @@ data_mut %>% head(10)
 data_mut %>% summary()
 ```
 
+### деление на группы и вычисление мер центральной тенденции
 разобьём датасет по тому, наблюдается ли в стране убыль или прирост населения.
 ```{r}
-data_increase <- data_mut %>% filter(Increase > 0) 
-data_increase %>% head(10)  
-data_decrease <- data_mut %>% filter(Increase <= 0) 
+data_increase <- data_mut %>% filter(Increase > 0)
+data_increase %>% head(10)
+data_decrease <- data_mut %>% filter(Increase <= 0)
 data_decrease %>% head(10)
 ```
 в каждой группе посчитаем медиану и среднее, SD:
@@ -79,12 +86,13 @@ data_decrease$GDPpmi %>% mean()
 data_decrease$GDPpmi %>% median()
 data_decrease$GDPpmi %>% sd()
 ```
-проанализируем. стандартное отклонение в первой группе (страны с положительным естественным приростом) составляет 195, среднее и медиана ~31 и 0. это позволяет сказать, что данные сильно разбросаны, большая часть наблюдений лежит около нуля, и некоторые сильно выбрасываются вверх, обеспечивая положительное значение среднего.  
+проанализируем. стандартное отклонение в первой группе (страны с положительным естественным приростом) составляет `r data_increase$GDPpmi %>% sd()`, среднее и медиана `r data_increase$GDPpmi %>% mean()` и `r data_increase$GDPpmi %>% median()`. это позволяет сказать, что данные сильно разбросаны, большая часть наблюдений лежит около нуля, и некоторые сильно выбрасываются вверх, обеспечивая положительное значение среднего.  
 
-во второй группе (страны с отрицательным ЕП) стандартное отклонение 2698, среднее и медиана 551 и 0. опять наблюдаем большой разброс, большая часть наблюдений так же лежит около нуля. 
+во второй группе (страны с отрицательным ЕП) стандартное отклонение `r data_decrease$GDPpmi %>% sd()`, среднее и медиана `r data_decrease$GDPpmi %>% mean()` и `r data_decrease$GDPpmi %>% median()`. опять наблюдаем большой разброс, большая часть наблюдений так же лежит около нуля. 
 
 сравнивая две группы, можно сказать, что среднее во второй группе больше среднего в первой группе, в то же время медианы у двух групп совпадают, что позволяет сделать вывод о том, что в обеих группах есть страны как с большими, так и с маленькими показателями. при этом значительное с.к.о. (в пять раз превышающее среднее значение) не позволяет делать выводы однозначно.
 
+### сохранение датасета
 сохраним датасет:
 ```{r}
 data_mut %>% saveRDS("modified.RDS")

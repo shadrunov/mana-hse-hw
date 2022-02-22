@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Aleksey Shadrunov, M. Emelyanenko, A. Podolskaya" />
+<meta name="author" content="Aleksey Shadrunov, Maxim Emelyanenko, Anastasia Podolskaya" />
 
 
 <title>hw1</title>
@@ -165,14 +165,14 @@ pre code {
 
 
 <h1 class="title toc-ignore">hw1</h1>
-<h4 class="author">Aleksey Shadrunov, M. Emelyanenko, A. Podolskaya</h4>
+<h4 class="author">Aleksey Shadrunov, Maxim Emelyanenko, Anastasia Podolskaya</h4>
 <h4 class="date">2/21/2022</h4>
 
 </div>
 
 
-<div id="hw1" class="section level2">
-<h2>hw1</h2>
+<div id="загрузка-данных" class="section level3">
+<h3>загрузка данных</h3>
 <p>Выбрали датасет, загрузили csv в tibble:</p>
 <pre class="r"><code>data &lt;- read.csv(&quot;countries.csv&quot;)
 data %&gt;% head(10) </code></pre>
@@ -223,6 +223,9 @@ data %&gt;% head(10) </code></pre>
            &quot;GDP&quot;,
            &quot;Birthrate&quot;,
            &quot;Deathrate&quot;)</code></pre>
+</div>
+<div id="очистка-данных" class="section level3">
+<h3>очистка данных</h3>
 <p>очистим датасет от NA-значений, пустых значений и сохраним в формат RDS:</p>
 <pre class="r"><code>data_clean &lt;- data_f %&gt;% 
     drop_na() %&gt;% 
@@ -246,6 +249,9 @@ data_clean %&gt;% saveRDS(&quot;clean.RDS&quot;)</code></pre>
 ##  3rd Qu.:10.605  
 ##  Max.   :29.740</code></pre>
 <p>видим, что в столбце Country хранятся символы, в остальных – числа.</p>
+</div>
+<div id="вычисление-переменных" class="section level3">
+<h3>вычисление переменных</h3>
 <p>вычислим переменную “естественный прирост” – Rate of natural increase (<code>Increase</code>):</p>
 <pre class="r"><code>data_mut &lt;- mutate(data_clean, Increase = Birthrate - Deathrate)
 data_mut %&gt;% head(10)</code></pre>
@@ -289,6 +295,9 @@ data_mut %&gt;% head(10)</code></pre>
 ##  Mean   : 9.241   Mean   :12.88   Mean   :   89.894  
 ##  3rd Qu.:10.605   3rd Qu.:20.93   3rd Qu.:    1.209  
 ##  Max.   :29.740   Max.   :35.65   Max.   :13500.000</code></pre>
+</div>
+<div id="деление-на-группы-и-вычисление-мер-центральной-тенденции" class="section level3">
+<h3>деление на группы и вычисление мер центральной тенденции</h3>
 <p>разобьём датасет по тому, наблюдается ли в стране убыль или прирост населения.</p>
 <pre class="r"><code>data_increase &lt;- data_mut %&gt;% filter(Increase &gt; 0) 
 data_increase %&gt;% head(10)  </code></pre>
@@ -329,9 +338,12 @@ data_decrease %&gt;% head(10)</code></pre>
 <pre><code>## [1] 0.1494142</code></pre>
 <pre class="r"><code>data_decrease$GDPpmi %&gt;% sd()</code></pre>
 <pre><code>## [1] 2698.019</code></pre>
-<p>проанализируем. стандартное отклонение в первой группе (страны с положительным естественным приростом) составляет 84, среднее и медиана ~18 и 0. это позволяет сказать, что данные сильно разбросаны, большая часть наблюдений лежит около нуля, и некоторые сильно выбрасываются вверх, обеспечивая положительное значение среднего.</p>
-<p>во второй группе (страны с отрицательным ЕП) стандартное отклонение 2814, среднее и медиана 587 и 0. опять наблюдаем большой разброс, большая часть наблюдений так же лежит около нуля.</p>
+<p>проанализируем. стандартное отклонение в первой группе (страны с положительным естественным приростом) составляет 195.3856162, среднее и медиана 31.5650784 и 0.0570897. это позволяет сказать, что данные сильно разбросаны, большая часть наблюдений лежит около нуля, и некоторые сильно выбрасываются вверх, обеспечивая положительное значение среднего.</p>
+<p>во второй группе (страны с отрицательным ЕП) стандартное отклонение 2698.0189044, среднее и медиана 551.860535 и 0.1494142. опять наблюдаем большой разброс, большая часть наблюдений так же лежит около нуля.</p>
 <p>сравнивая две группы, можно сказать, что среднее во второй группе больше среднего в первой группе, в то же время медианы у двух групп совпадают, что позволяет сделать вывод о том, что в обеих группах есть страны как с большими, так и с маленькими показателями. при этом значительное с.к.о. (в пять раз превышающее среднее значение) не позволяет делать выводы однозначно.</p>
+</div>
+<div id="сохранение-датасета" class="section level3">
+<h3>сохранение датасета</h3>
 <p>сохраним датасет:</p>
 <pre class="r"><code>data_mut %&gt;% saveRDS(&quot;modified.RDS&quot;)</code></pre>
 </div>
